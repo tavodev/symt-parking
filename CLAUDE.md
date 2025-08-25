@@ -4,7 +4,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Django 5.2 parking management system for shopping centers, managing stores, commercial units, tickets, and parking occupancy. The project uses uv for dependency management and follows Django app structure conventions.
+**SYMT Parking** is a Django 5.2 parking management system designed for shopping centers and commercial complexes. The system manages stores, commercial units, parking tickets, and real-time parking occupancy tracking. 
+
+**Key Features:**
+- Email-based user authentication with custom user profiles
+- Store and commercial unit management with temporal occupancy tracking
+- Parking space allocation and ticket management
+- Location-based parking area organization
+- Comprehensive reporting system
+- Dashboard interface for administrative tasks
+
+**Technology Stack:**
+- Django 5.2 (Python web framework)
+- SQLite (development database)
+- django-allauth (authentication)
+- django-split-settings (modular configuration)
+- uv (modern Python package management)
+- Bootstrap (frontend styling)
 
 ## Common Commands
 
@@ -86,3 +102,39 @@ uv lock
 The codebase uses a selector pattern for complex queries:
 - Example: `apps.stores.selectors.unit_occupancy.get_current_store_for_unit()`
 - Separates query logic from views and models
+
+## Development Guidelines
+
+### Code Organization
+- Follow Django app conventions with logical separation of concerns
+- Use the `apps/` directory for all custom Django applications
+- Keep models, views, and business logic properly separated
+- Utilize the selectors pattern for complex database queries
+
+### Model Relationships
+- `Store` represents business entities (tenants/operators)
+- `CommercialUnit` represents physical spaces within the parking facility
+- `UnitOccupancy` creates temporal relationships between stores and units
+- `CustomUser` handles all user authentication and profile management
+
+### Static Files and Templates
+- Static files located in `static/` directory
+- Templates use Django's template system with Bootstrap styling
+- Dashboard interface provides administrative functionality
+
+### Configuration Management
+- Environment-specific settings using django-split-settings
+- Components separated by functionality (auth, database, email, base)
+- Use `config/local_settings.py` for local development overrides (not tracked in git)
+
+## Security Considerations
+- Email-based authentication instead of username
+- Custom user manager handles user creation securely
+- Uses django-allauth for robust authentication flows
+- Profile pictures uploaded to secure directory structure
+
+## Performance Notes
+- SQLite suitable for development and small-scale deployments
+- Consider PostgreSQL for production environments
+- Selectors pattern optimizes complex queries
+- Static file serving configured for development
