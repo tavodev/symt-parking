@@ -1,7 +1,6 @@
 from django.urls import path
 from apps.dashboard.views import locations
 
-app_name = 'locations'
 
 urlpatterns = [
     path('', locations.LocationListView.as_view(), name='list'),
