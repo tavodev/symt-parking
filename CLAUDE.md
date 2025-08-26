@@ -146,3 +146,4 @@ The codebase uses a selector pattern for complex queries:
 - Consider PostgreSQL for production environments
 - Selectors pattern optimizes complex queries
 - Static file serving configured for development
+- all code must be generated in English
