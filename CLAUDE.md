@@ -16,7 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Technology Stack:**
 - Django 5.2 (Python web framework)
-- SQLite (development database)
+- PostgreSQL 17 (database)
 - django-allauth (authentication)
 - django-split-settings (modular configuration)
 - uv (modern Python package management)
@@ -94,17 +94,38 @@ uv lock
 - User manager: `apps.accounts.managers.CustomUserManager`
 
 ### Database
-- Uses SQLite for development (`db.sqlite3`)
+- Uses PostgreSQL 17 for all environments
 - Timezone: America/Mexico_City
 - Language: Spanish (es-mx)
 
 ### URL Structure
-The project uses a modular URL configuration:
-- Main URL config: `config/urls.py`
-- Admin panel: `/admin/` - Django admin interface
-- Authentication: `/accounts/` - django-allauth authentication URLs (login, logout, signup, etc.)
-- Dashboard: `/` - Main dashboard interface (apps.dashboard.urls with namespace 'dashboard')
-- Individual app URLs included via namespace pattern for modularity
+The project uses a highly modular URL configuration with Spanish-language URL patterns:
+
+**Main URL Configuration (`config/urls.py`):**
+- `/admin/` - Django admin interface
+- `/accounts/` - django-allauth authentication URLs (login, logout, signup, etc.)
+- `/` - Dashboard root (maps to apps.dashboard.urls with namespace 'dashboard')
+
+**Dashboard URL Organization (`apps/dashboard/urls/`):**
+The dashboard uses a modular URL structure with separate files for each resource:
+- `/` - Dashboard home (`DashboardView`)
+- `/locations/` - Location management (namespace: 'locations')
+- `/tiendas/` - Store management (namespace: 'stores') 
+- `/unidades-comerciales/` - Commercial unit management (namespace: 'commercial_units')
+- `/ocupaciones/` - Unit occupancy management (namespace: 'unit_occupancies')
+
+**Standard CRUD URL Pattern:**
+Each resource follows a consistent Spanish URL pattern:
+- `''` - List view (e.g., `/tiendas/`)
+- `'crear/'` - Create view (e.g., `/tiendas/crear/`)
+- `'<uuid:pk>/'` - Detail view (e.g., `/tiendas/123e4567-e89b-12d3-a456-426614174000/`)
+- `'<uuid:pk>/editar/'` - Update view (e.g., `/tiendas/123e4567-e89b-12d3-a456-426614174000/editar/`)
+- `'<uuid:pk>/eliminar/'` - Delete view (e.g., `/tiendas/123e4567-e89b-12d3-a456-426614174000/eliminar/`)
+
+**URL Naming Convention:**
+- Uses Django's reverse URL naming with namespaces
+- Format: `dashboard:resource_name:action` (e.g., `dashboard:stores:create`)
+- All models use UUID primary keys in URLs for security
 
 ### Selectors Pattern
 The codebase uses a selector pattern for complex queries:
@@ -142,8 +163,8 @@ The codebase uses a selector pattern for complex queries:
 - Profile pictures uploaded to secure directory structure
 
 ## Performance Notes
-- SQLite suitable for development and small-scale deployments
-- Consider PostgreSQL for production environments
+- PostgreSQL 17 provides robust performance for all deployment scales
 - Selectors pattern optimizes complex queries
 - Static file serving configured for development
-- all code must be generated in English
+- UUID primary keys enhance security but require indexing consideration
+- All code must be generated in English
