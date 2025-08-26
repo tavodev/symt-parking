@@ -1,0 +1,125 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Eliminar Ocupación - Dashboard - SYMT Parking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Eliminar Ocupación</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'dashboard:unit_occupancies:list' %}" class="btn btn-outline-secondary">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#chevron-left"></use>
+            </svg>
+            Volver a la lista
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <svg class="bi me-2" width="20" height="20" aria-hidden="true">
+                        <use xlink:href="#exclamation-triangle"></use>
+                    </svg>
+                    Confirmar Eliminación
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <strong>¡Atención!</strong> Esta acción no se puede deshacer.
+                </div>
+                
+                <p class="mb-3">
+                    ¿Está seguro de que desea eliminar esta ocupación?
+                </p>
+
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title">Información de la ocupación:</h6>
+                        <dl class="row mb-0">
+                            <dt class="col-sm-3">Unidad:</dt>
+                            <dd class="col-sm-9">
+                                <strong>{{ occupancy.unit.code }}</strong>
+                                <small class="text-muted">({{ occupancy.unit.location.name }})</small>
+                            </dd>
+                            
+                            <dt class="col-sm-3">Tienda:</dt>
+                            <dd class="col-sm-9">
+                                <strong>{{ occupancy.store.name }}</strong>
+                                {% if occupancy.store.is_active %}
+                                    <span class="badge bg-success ms-1">Activa</span>
+                                {% else %}
+                                    <span class="badge bg-secondary ms-1">Inactiva</span>
+                                {% endif %}
+                            </dd>
+                            
+                            <dt class="col-sm-3">Inicio:</dt>
+                            <dd class="col-sm-9">{{ occupancy.start_date|date:"d/m/Y H:i" }}</dd>
+                            
+                            <dt class="col-sm-3">Fin:</dt>
+                            <dd class="col-sm-9">
+                                {% if occupancy.end_date %}
+                                    {{ occupancy.end_date|date:"d/m/Y H:i" }}
+                                {% else %}
+                                    <span class="text-success">Ocupación vigente</span>
+                                {% endif %}
+                            </dd>
+                            
+                            <dt class="col-sm-3">Estado:</dt>
+                            <dd class="col-sm-9">
+                                {% if occupancy.end_date %}
+                                    <span class="badge bg-secondary">Finalizada</span>
+                                {% else %}
+                                    <span class="badge bg-success">Activa</span>
+                                {% endif %}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+
+                {% if not occupancy.end_date %}
+                <div class="alert alert-danger mt-3" role="alert">
+                    <strong>Ocupación activa:</strong> Esta ocupación está actualmente vigente. Al eliminarla, 
+                    la unidad comercial quedará disponible inmediatamente.
+                </div>
+                {% endif %}
+
+                <div class="alert alert-info mt-3" role="alert">
+                    <strong>Nota:</strong> Esta acción eliminará el registro de ocupación del historial. 
+                    No afectará los datos de la tienda ni la unidad comercial.
+                </div>
+
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'dashboard:unit_occupancies:detail' occupancy.pk %}" class="btn btn-secondary">
+                            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                                <use xlink:href="#arrow-left"></use>
+                            </svg>
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                                <use xlink:href="#trash"></use>
+                            </svg>
+                            Sí, eliminar ocupación
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

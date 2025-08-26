@@ -1,0 +1,310 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Ocupación: {{ occupancy.unit }} - {{ occupancy.store.name }} - Dashboard - SYMT Parking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Ocupación: {{ occupancy.unit }} - {{ occupancy.store.name }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{% url 'dashboard:unit_occupancies:update' occupancy.pk %}" class="btn btn-primary">
+                <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                    <use xlink:href="#gear-wide-connected"></use>
+                </svg>
+                Editar
+            </a>
+            <a href="{% url 'dashboard:unit_occupancies:delete' occupancy.pk %}" class="btn btn-outline-danger">
+                <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                    <use xlink:href="#door-closed"></use>
+                </svg>
+                Eliminar
+            </a>
+        </div>
+        <a href="{% url 'dashboard:unit_occupancies:list' %}" class="btn btn-outline-secondary">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#chevron-left"></use>
+            </svg>
+            Volver a la lista
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Información General</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Estado:</dt>
+                    <dd class="col-sm-8">
+                        {% if is_active %}
+                            <span class="badge bg-success">Activa</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Finalizada</span>
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-4">Inicio:</dt>
+                    <dd class="col-sm-8">{{ occupancy.start_date|date:"d/m/Y H:i" }}</dd>
+                    
+                    <dt class="col-sm-4">Fin:</dt>
+                    <dd class="col-sm-8">
+                        {% if occupancy.end_date %}
+                            {{ occupancy.end_date|date:"d/m/Y H:i" }}
+                        {% else %}
+                            <span class="text-success">Ocupación vigente</span>
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-4">Duración:</dt>
+                    <dd class="col-sm-8">
+                        {% if occupancy.end_date %}
+                            {% comment %}Calcular duración si está finalizada{% endcomment %}
+                            <span class="text-muted">Finalizada</span>
+                        {% else %}
+                            <span class="text-success">En curso</span>
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        {% if is_active %}
+        <div class="card mt-3 border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="card-title mb-0">
+                    <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                        <use xlink:href="#clock"></use>
+                    </svg>
+                    Acciones Rápidas
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Esta ocupación está actualmente activa.</p>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#endOccupancyModal">
+                        <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                            <use xlink:href="#stop-circle"></use>
+                        </svg>
+                        Finalizar Ocupación
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                        <use xlink:href="#building"></use>
+                    </svg>
+                    Unidad Comercial
+                </h5>
+            </div>
+            <div class="card-body">
+                <h6 class="card-title">{{ occupancy.unit.code }}</h6>
+                <p class="card-text">
+                    <strong>Ubicación:</strong> {{ occupancy.unit.location.name }}<br>
+                    <strong>Dirección:</strong> {{ occupancy.unit.location.address|default:"No especificada" }}<br>
+                    <strong>Capacidad:</strong> {{ occupancy.unit.location.capacity }} espacios
+                </p>
+                <a href="{% url 'dashboard:commercial_units:detail' occupancy.unit.pk %}" class="btn btn-sm btn-primary">
+                    Ver detalles de la unidad
+                </a>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                        <use xlink:href="#shop"></use>
+                    </svg>
+                    Tienda
+                </h5>
+            </div>
+            <div class="card-body">
+                <h6 class="card-title">{{ occupancy.store.name }}</h6>
+                <p class="card-text">
+                    <strong>Estado:</strong> 
+                    {% if occupancy.store.is_active %}
+                        <span class="badge bg-success">Activa</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Inactiva</span>
+                    {% endif %}
+                </p>
+                <a href="{% url 'dashboard:stores:detail' occupancy.store.pk %}" class="btn btn-sm btn-primary">
+                    Ver detalles de la tienda
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Timeline de la ocupación -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#clock-history"></use>
+            </svg>
+            Línea de Tiempo
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-marker bg-primary"></div>
+                <div class="timeline-content">
+                    <h6 class="timeline-title">Ocupación Iniciada</h6>
+                    <p class="timeline-text">{{ occupancy.start_date|date:"d/m/Y H:i" }}</p>
+                    <small class="text-muted">La tienda {{ occupancy.store.name }} comenzó a ocupar la unidad {{ occupancy.unit.code }}</small>
+                </div>
+            </div>
+            
+            {% if occupancy.end_date %}
+            <div class="timeline-item">
+                <div class="timeline-marker bg-secondary"></div>
+                <div class="timeline-content">
+                    <h6 class="timeline-title">Ocupación Finalizada</h6>
+                    <p class="timeline-text">{{ occupancy.end_date|date:"d/m/Y H:i" }}</p>
+                    <small class="text-muted">La ocupación de la unidad {{ occupancy.unit.code }} fue finalizada</small>
+                </div>
+            </div>
+            {% else %}
+            <div class="timeline-item">
+                <div class="timeline-marker bg-success timeline-marker-animated"></div>
+                <div class="timeline-content">
+                    <h6 class="timeline-title">Ocupación Activa</h6>
+                    <p class="timeline-text">En curso</p>
+                    <small class="text-muted">La ocupación está actualmente vigente</small>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if is_active %}
+<!-- Modal para finalizar ocupación -->
+<div class="modal fade" id="endOccupancyModal" tabindex="-1" aria-labelledby="endOccupancyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="endOccupancyModalLabel">Finalizar Ocupación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'dashboard:unit_occupancies:update' occupancy.pk %}">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <p>¿Está seguro de que desea finalizar esta ocupación?</p>
+                    <div class="mb-3">
+                        <label for="end_date_now" class="form-label">Fecha de finalización</label>
+                        <input type="datetime-local" class="form-control" id="end_date_now" name="end_date" required>
+                        <div class="form-text">Seleccione la fecha y hora de finalización</div>
+                    </div>
+                    
+                    <!-- Campos ocultos para mantener los datos actuales -->
+                    <input type="hidden" name="unit" value="{{ occupancy.unit.pk }}">
+                    <input type="hidden" name="store" value="{{ occupancy.store.pk }}">
+                    <input type="hidden" name="start_date" value="{{ occupancy.start_date|date:'Y-m-d\TH:i' }}">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Finalizar Ocupación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px #dee2e6;
+}
+
+.timeline-marker-animated {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 2px #28a745, 0 0 0 4px rgba(40, 167, 69, 0.3); }
+    50% { box-shadow: 0 0 0 2px #28a745, 0 0 0 8px rgba(40, 167, 69, 0.1); }
+    100% { box-shadow: 0 0 0 2px #28a745, 0 0 0 4px rgba(40, 167, 69, 0.3); }
+}
+
+.timeline-content {
+    padding-left: 20px;
+}
+
+.timeline-title {
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.timeline-text {
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set current date/time for end date modal
+    const endDateField = document.querySelector('#end_date_now');
+    if (endDateField) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        endDateField.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Eliminar {{ commercial_unit.location.name }} - {{ commercial_unit.code }} - Unidades Comerciales - Dashboard - SYMT Parking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Eliminar Unidad Comercial</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'dashboard:commercial_units:list' %}" class="btn btn-outline-secondary">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#chevron-left"></use>
+            </svg>
+            Volver a la lista
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <svg class="bi me-2" width="20" height="20" aria-hidden="true">
+                        <use xlink:href="#exclamation-triangle"></use>
+                    </svg>
+                    Confirmar Eliminación
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <strong>¡Atención!</strong> Esta acción no se puede deshacer.
+                </div>
+                
+                <p class="mb-3">
+                    ¿Está seguro de que desea eliminar la unidad comercial 
+                    <strong>"{{ commercial_unit.location.name }} - {{ commercial_unit.code }}"</strong>?
+                </p>
+
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title">Información de la unidad comercial:</h6>
+                        <dl class="row mb-0">
+                            <dt class="col-sm-3">Código:</dt>
+                            <dd class="col-sm-9">{{ commercial_unit.code }}</dd>
+                            
+                            <dt class="col-sm-3">Ubicación:</dt>
+                            <dd class="col-sm-9">{{ commercial_unit.location.name }}</dd>
+                            
+                            <dt class="col-sm-3">Creado:</dt>
+                            <dd class="col-sm-9">{{ commercial_unit.created_at|date:"d/m/Y H:i" }}</dd>
+                            
+                            <dt class="col-sm-3">Ocupaciones:</dt>
+                            <dd class="col-sm-9">
+                                <span class="badge bg-info">{{ commercial_unit.occupancies.count }}</span>
+                                ocupaciones registradas
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <div class="alert alert-danger mt-3" role="alert">
+                    <strong>Advertencia:</strong> Al eliminar esta unidad comercial también se eliminarán 
+                    <strong>todas las ocupaciones asociadas</strong> ({{ commercial_unit.occupancies.count }} ocupaciones).
+                </div>
+
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'dashboard:commercial_units:detail' commercial_unit.pk %}" class="btn btn-secondary">
+                            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                                <use xlink:href="#arrow-left"></use>
+                            </svg>
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                                <use xlink:href="#trash"></use>
+                            </svg>
+                            Sí, eliminar unidad
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

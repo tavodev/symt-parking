@@ -1,0 +1,211 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ commercial_unit.location.name }} - {{ commercial_unit.code }} - Unidades Comerciales - Dashboard - SYMT Parking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{ commercial_unit.location.name }} - {{ commercial_unit.code }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{% url 'dashboard:commercial_units:update' commercial_unit.pk %}" class="btn btn-primary">
+                <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                    <use xlink:href="#gear-wide-connected"></use>
+                </svg>
+                Editar
+            </a>
+            <a href="{% url 'dashboard:commercial_units:delete' commercial_unit.pk %}" class="btn btn-outline-danger">
+                <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                    <use xlink:href="#door-closed"></use>
+                </svg>
+                Eliminar
+            </a>
+        </div>
+        <a href="{% url 'dashboard:commercial_units:list' %}" class="btn btn-outline-secondary">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#chevron-left"></use>
+            </svg>
+            Volver a la lista
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Información General</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Código:</dt>
+                    <dd class="col-sm-8"><strong>{{ commercial_unit.code }}</strong></dd>
+                    
+                    <dt class="col-sm-4">Ubicación:</dt>
+                    <dd class="col-sm-8">{{ commercial_unit.location.name }}</dd>
+                    
+                    <dt class="col-sm-4">Estado:</dt>
+                    <dd class="col-sm-8">
+                        {% if current_store %}
+                            <span class="badge bg-success">Ocupada</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Libre</span>
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-4">Creado:</dt>
+                    <dd class="col-sm-8">{{ commercial_unit.created_at|date:"d/m/Y H:i" }}</dd>
+                    
+                    <dt class="col-sm-4">Actualizado:</dt>
+                    <dd class="col-sm-8">{{ commercial_unit.updated_at|date:"d/m/Y H:i" }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        {% if current_store %}
+        <div class="card mt-3">
+            <div class="card-header bg-success text-white">
+                <h6 class="card-title mb-0">
+                    <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                        <use xlink:href="#shop"></use>
+                    </svg>
+                    Tienda Actual
+                </h6>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ current_store.name }}</h5>
+                <p class="card-text">
+                    Estado: 
+                    {% if current_store.is_active %}
+                        <span class="badge bg-success">Activa</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Inactiva</span>
+                    {% endif %}
+                </p>
+                <a href="{% url 'dashboard:stores:detail' current_store.pk %}" class="btn btn-sm btn-primary">
+                    Ver detalles de la tienda
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="card mt-3 border-secondary">
+            <div class="card-header bg-light">
+                <h6 class="card-title mb-0">
+                    <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                        <use xlink:href="#building"></use>
+                    </svg>
+                    Unidad Disponible
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Esta unidad comercial está actualmente disponible para ocupación.</p>
+                <a href="{% url 'dashboard:unit_occupancies:create' %}" class="btn btn-sm btn-success">
+                    <svg class="bi me-1" width="14" height="14" aria-hidden="true">
+                        <use xlink:href="#plus-circle"></use>
+                    </svg>
+                    Crear Ocupación
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Historial de Ocupaciones</h5>
+                <a href="{% url 'dashboard:unit_occupancies:create' %}" class="btn btn-sm btn-primary">
+                    <svg class="bi me-1" width="14" height="14" aria-hidden="true">
+                        <use xlink:href="#plus-circle"></use>
+                    </svg>
+                    Nueva Ocupación
+                </a>
+            </div>
+            <div class="card-body">
+                {% if occupancy_history %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tienda</th>
+                                    <th>Inicio</th>
+                                    <th>Fin</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for occupancy in occupancy_history %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ occupancy.store.name }}</strong>
+                                        {% if occupancy.store.is_active %}
+                                            <span class="badge bg-success ms-1">Activa</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary ms-1">Inactiva</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ occupancy.start_date|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if occupancy.end_date %}
+                                            {{ occupancy.end_date|date:"d/m/Y H:i" }}
+                                        {% else %}
+                                            <span class="text-success">Actual</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if occupancy.end_date %}
+                                            <span class="badge bg-secondary">Finalizada</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Activa</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'dashboard:unit_occupancies:detail' occupancy.pk %}" 
+                                               class="btn btn-outline-info" title="Ver detalles">
+                                                <svg class="bi" width="14" height="14" aria-hidden="true">
+                                                    <use xlink:href="#search"></use>
+                                                </svg>
+                                            </a>
+                                            <a href="{% url 'dashboard:unit_occupancies:update' occupancy.pk %}" 
+                                               class="btn btn-outline-primary" title="Editar">
+                                                <svg class="bi" width="14" height="14" aria-hidden="true">
+                                                    <use xlink:href="#gear-wide-connected"></use>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <svg class="bi mb-2" width="48" height="48" aria-hidden="true">
+                            <use xlink:href="#clock-history"></use>
+                        </svg>
+                        <p>No hay historial de ocupaciones para esta unidad</p>
+                        <a href="{% url 'dashboard:unit_occupancies:create' %}" class="btn btn-primary">
+                            <svg class="bi me-1" width="16" height="16" aria-hidden="true">
+                                <use xlink:href="#plus-circle"></use>
+                            </svg>
+                            Crear primera ocupación
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

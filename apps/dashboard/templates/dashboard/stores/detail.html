@@ -1,0 +1,179 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ store.name }} - Tiendas - Dashboard - SYMT Parking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{ store.name }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{% url 'dashboard:stores:update' store.pk %}" class="btn btn-primary">
+                <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                    <use xlink:href="#gear-wide-connected"></use>
+                </svg>
+                Editar
+            </a>
+            <a href="{% url 'dashboard:stores:delete' store.pk %}" class="btn btn-outline-danger">
+                <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                    <use xlink:href="#door-closed"></use>
+                </svg>
+                Eliminar
+            </a>
+        </div>
+        <a href="{% url 'dashboard:stores:list' %}" class="btn btn-outline-secondary">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#chevron-left"></use>
+            </svg>
+            Volver a la lista
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Información General</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-6">Nombre:</dt>
+                    <dd class="col-sm-6">{{ store.name }}</dd>
+                    
+                    <dt class="col-sm-6">Estado:</dt>
+                    <dd class="col-sm-6">
+                        {% if store.is_active %}
+                            <span class="badge bg-success">Activa</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactiva</span>
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-6">Creado:</dt>
+                    <dd class="col-sm-6">{{ store.created_at|date:"d/m/Y H:i" }}</dd>
+                    
+                    <dt class="col-sm-6">Actualizado:</dt>
+                    <dd class="col-sm-6">{{ store.updated_at|date:"d/m/Y H:i" }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Ocupaciones Actuales</h5>
+                <a href="{% url 'dashboard:unit_occupancies:create' %}" class="btn btn-sm btn-primary">
+                    <svg class="bi me-1" width="14" height="14" aria-hidden="true">
+                        <use xlink:href="#plus-circle"></use>
+                    </svg>
+                    Nueva Ocupación
+                </a>
+            </div>
+            <div class="card-body">
+                {% if current_occupancies %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Unidad</th>
+                                    <th>Ubicación</th>
+                                    <th>Inicio</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for occupancy in current_occupancies %}
+                                <tr>
+                                    <td><strong>{{ occupancy.unit.code }}</strong></td>
+                                    <td>{{ occupancy.unit.location.name }}</td>
+                                    <td>{{ occupancy.start_date|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'dashboard:unit_occupancies:detail' occupancy.pk %}" 
+                                           class="btn btn-sm btn-outline-info" title="Ver detalles">
+                                            <svg class="bi" width="12" height="12" aria-hidden="true">
+                                                <use xlink:href="#search"></use>
+                                            </svg>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <svg class="bi mb-2" width="48" height="48" aria-hidden="true">
+                            <use xlink:href="#building"></use>
+                        </svg>
+                        <p>No tiene ocupaciones actuales</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Historial de Ocupaciones</h5>
+            </div>
+            <div class="card-body">
+                {% if occupancy_history %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Unidad</th>
+                                    <th>Ubicación</th>
+                                    <th>Inicio</th>
+                                    <th>Fin</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for occupancy in occupancy_history %}
+                                <tr>
+                                    <td><strong>{{ occupancy.unit.code }}</strong></td>
+                                    <td>{{ occupancy.unit.location.name }}</td>
+                                    <td>{{ occupancy.start_date|date:"d/m/Y" }}</td>
+                                    <td>{{ occupancy.end_date|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'dashboard:unit_occupancies:detail' occupancy.pk %}" 
+                                           class="btn btn-sm btn-outline-info" title="Ver detalles">
+                                            <svg class="bi" width="12" height="12" aria-hidden="true">
+                                                <use xlink:href="#search"></use>
+                                            </svg>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-2">
+                        <a href="{% url 'dashboard:unit_occupancies:list' %}?store={{ store.pk }}" class="btn btn-sm btn-outline-primary">
+                            Ver historial completo
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <svg class="bi mb-2" width="48" height="48" aria-hidden="true">
+                            <use xlink:href="#clock-history"></use>
+                        </svg>
+                        <p>No hay historial de ocupaciones</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

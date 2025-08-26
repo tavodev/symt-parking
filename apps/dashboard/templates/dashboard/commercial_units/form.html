@@ -1,0 +1,156 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ form_title }} - Unidades Comerciales - Dashboard - SYMT Parking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{ form_title }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'dashboard:commercial_units:list' %}" class="btn btn-outline-secondary">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#chevron-left"></use>
+            </svg>
+            Volver a la lista
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Información de la Unidad Comercial</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.location.id_for_label }}" class="form-label">
+                                Ubicación <span class="text-danger">*</span>
+                            </label>
+                            {{ form.location }}
+                            {% if form.location.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.location.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Seleccione la ubicación donde se encuentra la unidad</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.code.id_for_label }}" class="form-label">
+                                Código <span class="text-danger">*</span>
+                            </label>
+                            {{ form.code }}
+                            {% if form.code.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.code.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Código único de la unidad (ej: Local-201, Kiosko-15)</div>
+                        </div>
+                    </div>
+
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'dashboard:commercial_units:list' %}" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                                <use xlink:href="#check2"></use>
+                            </svg>
+                            {{ form_action }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Ayuda</h6>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">
+                    <strong>Consejos:</strong>
+                    <ul class="mt-2 ps-3">
+                        <li>El código debe ser único dentro de cada ubicación</li>
+                        <li>Use códigos descriptivos como "Local-201" o "Kiosko-15"</li>
+                        <li>Primero debe existir al menos una ubicación</li>
+                        <li>El código no puede estar vacío</li>
+                    </ul>
+
+                    <strong class="mt-3 d-block">Ejemplos de códigos:</strong>
+                    <ul class="mt-1 ps-3">
+                        <li>Local-101, Local-102, Local-201</li>
+                        <li>Kiosko-A, Kiosko-B, Kiosko-C</li>
+                        <li>Bodega-01, Bodega-02</li>
+                        <li>Oficina-301, Oficina-302</li>
+                    </ul>
+                </small>
+            </div>
+        </div>
+
+        {% if locations %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Ubicaciones Disponibles</h6>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">
+                    {% for location in locations %}
+                        <div class="d-flex justify-content-between py-1">
+                            <span>{{ location.name }}</span>
+                            <span class="badge bg-light text-dark">{{ location.units.count }} unidades</span>
+                        </div>
+                    {% endfor %}
+                </small>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Bootstrap classes to form fields
+    const formFields = document.querySelectorAll('input[type="text"], textarea, select');
+    formFields.forEach(field => {
+        field.classList.add('form-control');
+        
+        if (field.hasAttribute('required')) {
+            field.setAttribute('required', '');
+        }
+    });
+
+    // Add validation feedback classes
+    const invalidFields = document.querySelectorAll('.invalid-feedback');
+    invalidFields.forEach(feedback => {
+        const field = feedback.previousElementSibling;
+        if (field && field.tagName !== 'DIV') {
+            field.classList.add('is-invalid');
+        }
+    });
+});
+</script>
+{% endblock %}

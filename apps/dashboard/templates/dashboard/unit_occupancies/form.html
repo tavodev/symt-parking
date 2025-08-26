@@ -1,0 +1,213 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ form_title }} - Ocupaciones - Dashboard - SYMT Parking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{ form_title }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'dashboard:unit_occupancies:list' %}" class="btn btn-outline-secondary">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#chevron-left"></use>
+            </svg>
+            Volver a la lista
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Información de la Ocupación</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Errores no específicos de campo -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.unit.id_for_label }}" class="form-label">
+                                Unidad Comercial <span class="text-danger">*</span>
+                            </label>
+                            {{ form.unit }}
+                            {% if form.unit.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.unit.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Seleccione la unidad comercial a ocupar</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.store.id_for_label }}" class="form-label">
+                                Tienda <span class="text-danger">*</span>
+                            </label>
+                            {{ form.store }}
+                            {% if form.store.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.store.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Seleccione la tienda que ocupará la unidad</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.start_date.id_for_label }}" class="form-label">
+                                Fecha de Inicio <span class="text-danger">*</span>
+                            </label>
+                            {{ form.start_date }}
+                            {% if form.start_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.start_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Fecha y hora de inicio de la ocupación</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.end_date.id_for_label }}" class="form-label">
+                                Fecha de Fin <span class="text-muted">(opcional)</span>
+                            </label>
+                            {{ form.end_date }}
+                            {% if form.end_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.end_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Deje vacío si la ocupación está vigente</div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info" role="alert">
+                        <strong>Validación de solapamiento:</strong> El sistema verificará automáticamente que no existan 
+                        ocupaciones que se solapen en la misma unidad comercial durante el período especificado.
+                    </div>
+
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'dashboard:unit_occupancies:list' %}" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                                <use xlink:href="#check2"></use>
+                            </svg>
+                            {{ form_action }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Ayuda</h6>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">
+                    <strong>Consejos:</strong>
+                    <ul class="mt-2 ps-3">
+                        <li>Una unidad solo puede tener una ocupación activa a la vez</li>
+                        <li>La fecha de fin es opcional para ocupaciones vigentes</li>
+                        <li>No se permiten solapamientos de fechas</li>
+                        <li>Solo tiendas activas pueden crear nuevas ocupaciones</li>
+                        <li>La fecha de inicio debe ser anterior a la fecha de fin</li>
+                    </ul>
+                </small>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Estados de Ocupación</h6>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-success me-2">Activa</span>
+                        Ocupación sin fecha de fin
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-secondary me-2">Finalizada</span>
+                        Ocupación con fecha de fin
+                    </div>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Bootstrap classes to form fields
+    const formFields = document.querySelectorAll('input, textarea, select');
+    formFields.forEach(field => {
+        if (field.type !== 'hidden' && field.type !== 'checkbox') {
+            field.classList.add('form-control');
+        }
+        
+        if (field.hasAttribute('required')) {
+            field.setAttribute('required', '');
+        }
+    });
+
+    // Add validation feedback classes
+    const invalidFields = document.querySelectorAll('.invalid-feedback');
+    invalidFields.forEach(feedback => {
+        const field = feedback.previousElementSibling;
+        if (field && field.tagName !== 'DIV') {
+            field.classList.add('is-invalid');
+        }
+    });
+
+    // Set default date/time if creating new occupancy
+    const startDateField = document.querySelector('#id_start_date');
+    const endDateField = document.querySelector('#id_end_date');
+    
+    if (startDateField && !startDateField.value) {
+        // Set current date/time as default for start date
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        startDateField.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+});
+</script>
+{% endblock %}

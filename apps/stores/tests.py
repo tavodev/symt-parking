@@ -1,3 +1,2 @@
-from django.test import TestCase
-
-# Create your tests here.
+# Tests moved to tests/ directory
+# Run with: python manage.py test apps.stores
