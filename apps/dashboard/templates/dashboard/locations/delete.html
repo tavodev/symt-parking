@@ -1,0 +1,101 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Eliminar {{ object.name }} - Ubicaciones - Dashboard - SYMT Parking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Eliminar Ubicación</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'dashboard:locations:list' %}" class="btn btn-outline-secondary">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#chevron-right"></use>
+            </svg>
+            Volver a la lista
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <svg class="bi me-2" width="20" height="20" aria-hidden="true">
+                        <use xlink:href="#door-closed"></use>
+                    </svg>
+                    Confirmar Eliminación
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning d-flex" role="alert">
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" aria-hidden="true">
+                        <use xlink:href="#building"></use>
+                    </svg>
+                    <div>
+                        <strong>¡Atención!</strong> Esta acción no se puede deshacer.
+                    </div>
+                </div>
+
+                <p>¿Está seguro de que desea eliminar la ubicación <strong>{{ object.name }}</strong>?</p>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Información de la ubicación:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Nombre:</strong> {{ object.name }}</li>
+                            <li><strong>Capacidad:</strong> {{ object.capacity }} espacios</li>
+                            <li><strong>Tolerancia:</strong> {{ object.tolerance_minutes }} minutos</li>
+                            <li><strong>Creado:</strong> {{ object.created_at|date:"d/m/Y" }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        {% if object.address %}
+                        <h6>Dirección:</h6>
+                        <p class="text-muted">{{ object.address }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="alert alert-danger" role="alert">
+                    <h6 class="alert-heading">Consecuencias de la eliminación:</h6>
+                    <ul class="mb-0">
+                        <li>Se perderá toda la información de esta ubicación</li>
+                        <li>Los espacios de estacionamiento asociados podrían verse afectados</li>
+                        <li>Los tickets y reportes históricos mantendrán la referencia pero sin detalles</li>
+                    </ul>
+                </div>
+
+                <form method="post" class="d-inline">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <a href="{% url 'dashboard:locations:detail' object.pk %}" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                        <div>
+                            <a href="{% url 'dashboard:locations:list' %}" class="btn btn-outline-secondary me-2">
+                                Ir a la lista
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                                    <use xlink:href="#door-closed"></use>
+                                </svg>
+                                Sí, eliminar ubicación
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
