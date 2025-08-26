@@ -98,6 +98,14 @@ uv lock
 - Timezone: America/Mexico_City
 - Language: Spanish (es-mx)
 
+### URL Structure
+The project uses a modular URL configuration:
+- Main URL config: `config/urls.py`
+- Admin panel: `/admin/` - Django admin interface
+- Authentication: `/accounts/` - django-allauth authentication URLs (login, logout, signup, etc.)
+- Dashboard: `/` - Main dashboard interface (apps.dashboard.urls with namespace 'dashboard')
+- Individual app URLs included via namespace pattern for modularity
+
 ### Selectors Pattern
 The codebase uses a selector pattern for complex queries:
 - Example: `apps.stores.selectors.unit_occupancy.get_current_store_for_unit()`
