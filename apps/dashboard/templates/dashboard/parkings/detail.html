@@ -1,0 +1,155 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ parking.location.name }} - Estacionamientos - Dashboard - SYMT Parking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Estacionamiento - {{ parking.location.name }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{% url 'dashboard:parkings:update' parking.pk %}" class="btn btn-primary">
+                <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                    <use xlink:href="#gear-wide-connected"></use>
+                </svg>
+                Editar
+            </a>
+            <a href="{% url 'dashboard:parkings:delete' parking.pk %}" class="btn btn-outline-danger">
+                <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                    <use xlink:href="#door-closed"></use>
+                </svg>
+                Eliminar
+            </a>
+        </div>
+        <a href="{% url 'dashboard:parkings:list' %}" class="btn btn-outline-secondary">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#chevron-left"></use>
+            </svg>
+            Volver a la lista
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Información General</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-6">Ubicación:</dt>
+                    <dd class="col-sm-6"><strong>{{ parking.location.name }}</strong></dd>
+                    
+                    <dt class="col-sm-6">Capacidad:</dt>
+                    <dd class="col-sm-6">
+                        <span class="badge bg-info">{{ parking.capacity }} espacios</span>
+                    </dd>
+                    
+                    <dt class="col-sm-6">Tolerancia:</dt>
+                    <dd class="col-sm-6">{{ parking.tolerance_minutes }} minutos</dd>
+                    
+                    <dt class="col-sm-6">Creado:</dt>
+                    <dd class="col-sm-6">{{ parking.created_at|date:"d/m/Y H:i" }}</dd>
+                    
+                    <dt class="col-sm-6">Actualizado:</dt>
+                    <dd class="col-sm-6">{{ parking.updated_at|date:"d/m/Y H:i" }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Estadísticas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h3 class="text-primary mb-1">{{ parking.capacity }}</h3>
+                            <small class="text-muted">Capacidad Total</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h3 class="text-success mb-1">0</h3>
+                            <small class="text-muted">Ocupados</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="text-info mb-1">{{ parking.capacity }}</h3>
+                        <small class="text-muted">Disponibles</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Configuración</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="d-flex align-items-center mb-2">
+                            <svg class="bi me-2 text-warning" width="16" height="16" aria-hidden="true">
+                                <use xlink:href="#clock"></use>
+                            </svg>
+                            <strong>Tolerancia:</strong> {{ parking.tolerance_minutes }} minutos
+                        </div>
+                        <small class="text-muted">
+                            Los vehículos tienen {{ parking.tolerance_minutes }} minutos de tolerancia antes de ser penalizados por exceso de tiempo.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Información de la Ubicación</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-2">Nombre:</dt>
+                    <dd class="col-sm-10">{{ parking.location.name }}</dd>
+                    
+                    {% if parking.location.address %}
+                    <dt class="col-sm-2">Dirección:</dt>
+                    <dd class="col-sm-10">{{ parking.location.address }}</dd>
+                    {% endif %}
+                    
+                    {% if parking.location.description %}
+                    <dt class="col-sm-2">Descripción:</dt>
+                    <dd class="col-sm-10">{{ parking.location.description }}</dd>
+                    {% endif %}
+                </dl>
+                
+                <div class="mt-3">
+                    <a href="{% url 'dashboard:locations:detail' parking.location.pk %}" class="btn btn-sm btn-outline-info">
+                        <svg class="bi me-1" width="14" height="14" aria-hidden="true">
+                            <use xlink:href="#geo-alt"></use>
+                        </svg>
+                        Ver detalles de ubicación
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

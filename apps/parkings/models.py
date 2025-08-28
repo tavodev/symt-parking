@@ -1,9 +1,11 @@
 # apps/parking/models.py
 from django.db import models
+
+from apps.common.models import BaseModel
 from apps.locations.models import Location
 
 
-class Parking(models.Model):
+class Parking(BaseModel):
     location = models.OneToOneField(
         Location,
         on_delete=models.CASCADE,

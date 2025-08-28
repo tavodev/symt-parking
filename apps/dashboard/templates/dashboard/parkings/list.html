@@ -1,0 +1,134 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Estacionamientos - Dashboard - SYMT Parking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Estacionamientos</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'dashboard:parkings:create' %}" class="btn btn-primary">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#plus-circle"></use>
+            </svg>
+            Nuevo Estacionamiento
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% if parkings %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Ubicación</th>
+                    <th>Capacidad</th>
+                    <th>Tolerancia (min)</th>
+                    <th>Creado</th>
+                    <th>Actualizado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for parking in parkings %}
+                <tr>
+                    <td>
+                        <strong>{{ parking.location.name }}</strong>
+                    </td>
+                    <td>
+                        <span class="badge bg-info">{{ parking.capacity }} espacios</span>
+                    </td>
+                    <td>{{ parking.tolerance_minutes }}</td>
+                    <td>{{ parking.created_at|date:"d/m/Y H:i" }}</td>
+                    <td>{{ parking.updated_at|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'dashboard:parkings:detail' parking.pk %}" 
+                               class="btn btn-sm btn-outline-info" title="Ver detalles">
+                                <svg class="bi" width="14" height="14" aria-hidden="true">
+                                    <use xlink:href="#search"></use>
+                                </svg>
+                            </a>
+                            <a href="{% url 'dashboard:parkings:update' parking.pk %}" 
+                               class="btn btn-sm btn-outline-primary" title="Editar">
+                                <svg class="bi" width="14" height="14" aria-hidden="true">
+                                    <use xlink:href="#gear-wide-connected"></use>
+                                </svg>
+                            </a>
+                            <a href="{% url 'dashboard:parkings:delete' parking.pk %}" 
+                               class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                <svg class="bi" width="14" height="14" aria-hidden="true">
+                                    <use xlink:href="#door-closed"></use>
+                                </svg>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if is_paginated %}
+    <nav aria-label="Paginación de estacionamientos">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Anterior</span>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Siguiente</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+{% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info d-flex align-items-center" role="alert">
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24" aria-hidden="true">
+                    <use xlink:href="#building"></use>
+                </svg>
+                <div>
+                    No hay estacionamientos registrados. 
+                    <a href="{% url 'dashboard:parkings:create' %}" class="alert-link">Crear el primer estacionamiento</a>.
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
