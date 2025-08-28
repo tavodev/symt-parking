@@ -48,7 +48,7 @@
                         <a class="nav-link d-flex align-items-center gap-2 {% if 'stores' in request.resolver_match.namespace %}active{% endif %}" 
                            href="{% url 'dashboard:stores:list' %}">
                             <svg class="bi" aria-hidden="true">
-                                <use xlink:href="#shop"></use>
+                                <use xlink:href="#building"></use>
                             </svg>
                             Tiendas
                         </a>
@@ -57,7 +57,7 @@
                         <a class="nav-link d-flex align-items-center gap-2 {% if 'unit_occupancies' in request.resolver_match.namespace %}active{% endif %}" 
                            href="{% url 'dashboard:unit_occupancies:list' %}">
                             <svg class="bi" aria-hidden="true">
-                                <use xlink:href="#calendar-event"></use>
+                                <use xlink:href="#building"></use>
                             </svg>
                             Ocupaciones
                         </a>
