@@ -168,3 +168,4 @@ The codebase uses a selector pattern for complex queries:
 - Static file serving configured for development
 - UUID primary keys enhance security but require indexing consideration
 - All code must be generated in English
+- add to memory. remember, this project use uv
