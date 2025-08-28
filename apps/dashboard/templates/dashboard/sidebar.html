@@ -86,6 +86,15 @@
 
                 <ul class="nav flex-column mb-auto">
                     <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center gap-2 {% if 'users' in request.resolver_match.namespace %}active{% endif %}" 
+                           href="{% url 'dashboard:users:list' %}">
+                            <svg class="bi" aria-hidden="true">
+                                <use xlink:href="#people"></use>
+                            </svg>
+                            Gestión de Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link d-flex align-items-center gap-2" href="#">
                             <svg class="bi" aria-hidden="true">
                                 <use xlink:href="#gear-wide-connected"></use>

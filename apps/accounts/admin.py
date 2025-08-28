@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
+from .models import CustomUser, UserProfile
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 
 
@@ -42,3 +42,69 @@ class CustomUserAdmin(UserAdmin):
                        'password2'),
         }),
     )
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    """
+    Admin configuration for UserProfile model
+    """
+    list_display = ('user', 'get_user_email', 'role', 'location', 'store', 'created_at')
+    list_filter = ('role', 'location', 'store', 'created_at')
+    search_fields = ('user__email', 'user__first_name', 'user__last_name')
+    raw_id_fields = ('user',)
+    filter_horizontal = ('managed_locations',)
+    
+    fieldsets = (
+        ('User', {
+            'fields': ('user',)
+        }),
+        ('Role & Assignment', {
+            'fields': ('role', 'location', 'store', 'managed_locations'),
+            'description': 'Assign user role and related locations/stores based on hierarchy'
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',),
+        }),
+    )
+    
+    readonly_fields = ('created_at', 'updated_at')
+    
+    def get_user_email(self, obj):
+        """Display user email in list view"""
+        return obj.user.email
+    get_user_email.short_description = 'Email'
+    get_user_email.admin_order_field = 'user__email'
+    
+    def get_queryset(self, request):
+        """Optimize queries with select_related"""
+        return super().get_queryset(request).select_related(
+            'user', 'location', 'store'
+        ).prefetch_related('managed_locations')
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """Customize foreign key fields based on current user's permissions"""
+        if db_field.name == "location":
+            # Filter locations based on user permissions if needed
+            pass
+        elif db_field.name == "store":
+            # Filter stores based on user permissions if needed
+            pass
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+# Inline admin for displaying UserProfile in CustomUser admin
+class UserProfileInline(admin.StackedInline):
+    """
+    Inline admin for UserProfile to display in CustomUser admin
+    """
+    model = UserProfile
+    can_delete = False
+    verbose_name_plural = 'Profile Information'
+    fields = ('role', 'location', 'store', 'managed_locations')
+    filter_horizontal = ('managed_locations',)
+
+
+# Update CustomUserAdmin to include UserProfile inline
+CustomUserAdmin.inlines = (UserProfileInline,)

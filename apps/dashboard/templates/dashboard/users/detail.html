@@ -1,0 +1,167 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ user_profile.user.get_full_name }} - Usuarios - Dashboard - SYMT Parking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{ user_profile.user.get_full_name|default:user_profile.user.email }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{% url 'dashboard:users:update' user_profile.pk %}" class="btn btn-primary">
+                <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                    <use xlink:href="#gear-wide-connected"></use>
+                </svg>
+                Editar
+            </a>
+            <a href="{% url 'dashboard:users:delete' user_profile.pk %}" class="btn btn-outline-danger">
+                <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                    <use xlink:href="#door-closed"></use>
+                </svg>
+                Eliminar
+            </a>
+        </div>
+        <a href="{% url 'dashboard:users:list' %}" class="btn btn-outline-secondary">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#chevron-left"></use>
+            </svg>
+            Volver a la lista
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Información Personal</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Nombre:</dt>
+                    <dd class="col-sm-8">{{ user_profile.user.first_name|default:"-" }}</dd>
+                    
+                    <dt class="col-sm-4">Apellidos:</dt>
+                    <dd class="col-sm-8">{{ user_profile.user.last_name|default:"-" }}</dd>
+                    
+                    <dt class="col-sm-4">Email:</dt>
+                    <dd class="col-sm-8">{{ user_profile.user.email }}</dd>
+                    
+                    <dt class="col-sm-4">Estado:</dt>
+                    <dd class="col-sm-8">
+                        {% if user_profile.user.is_active %}
+                            <span class="badge bg-success">Activo</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactivo</span>
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-4">Registrado:</dt>
+                    <dd class="col-sm-8">{{ user_profile.created_at|date:"d/m/Y H:i" }}</dd>
+                    
+                    <dt class="col-sm-4">Actualizado:</dt>
+                    <dd class="col-sm-8">{{ user_profile.updated_at|date:"d/m/Y H:i" }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Rol y Permisos</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Rol:</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge 
+                            {% if user_profile.role == 'admin' %}bg-danger
+                            {% elif user_profile.role == 'admin_plaza' %}bg-warning text-dark
+                            {% elif user_profile.role == 'gerente_local' %}bg-info
+                            {% else %}bg-secondary
+                            {% endif %}">
+                            {{ user_profile.get_role_display }}
+                        </span>
+                    </dd>
+                    
+                    {% if user_profile.location %}
+                    <dt class="col-sm-4">Plaza:</dt>
+                    <dd class="col-sm-8">
+                        <i class="bi bi-building"></i> {{ user_profile.location.name }}
+                        <br><small class="text-muted">{{ user_profile.location.address|default:"Sin dirección" }}</small>
+                    </dd>
+                    {% endif %}
+                    
+                    {% if user_profile.store %}
+                    <dt class="col-sm-4">Tienda:</dt>
+                    <dd class="col-sm-8">
+                        <i class="bi bi-shop"></i> {{ user_profile.store.name }}
+                        {% if user_profile.store.is_active %}
+                            <span class="badge bg-success ms-2">Activa</span>
+                        {% else %}
+                            <span class="badge bg-secondary ms-2">Inactiva</span>
+                        {% endif %}
+                    </dd>
+                    {% endif %}
+                    
+                    {% if user_profile.managed_locations.exists %}
+                    <dt class="col-sm-4">Ubicaciones:</dt>
+                    <dd class="col-sm-8">
+                        {% for location in user_profile.managed_locations.all %}
+                            <span class="badge bg-primary me-1 mb-1">
+                                <i class="bi bi-building"></i> {{ location.name }}
+                            </span>
+                        {% endfor %}
+                    </dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Capacidades</h6>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">
+                    {% if user_profile.role == 'admin' %}
+                        <ul class="list-unstyled mb-0">
+                            <li><i class="bi bi-check-circle text-success"></i> Gestionar todas las ubicaciones</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Crear cualquier tipo de usuario</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Acceso completo al sistema</li>
+                        </ul>
+                    {% elif user_profile.role == 'admin_plaza' %}
+                        <ul class="list-unstyled mb-0">
+                            <li><i class="bi bi-check-circle text-success"></i> Gestionar su plaza asignada</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Crear gerentes y usuarios locales</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Administrar tiendas en su plaza</li>
+                        </ul>
+                    {% elif user_profile.role == 'gerente_local' %}
+                        <ul class="list-unstyled mb-0">
+                            <li><i class="bi bi-check-circle text-success"></i> Gestionar su tienda</li>
+                            <li><i class="bi bi-check-circle text-success"></i> Crear usuarios locales</li>
+                            <li><i class="bi bi-x-circle text-muted"></i> Acceso limitado a su tienda</li>
+                        </ul>
+                    {% else %}
+                        <ul class="list-unstyled mb-0">
+                            <li><i class="bi bi-check-circle text-success"></i> Procesar tickets de estacionamiento</li>
+                            <li><i class="bi bi-x-circle text-muted"></i> No puede crear usuarios</li>
+                            <li><i class="bi bi-x-circle text-muted"></i> Acceso solo operativo</li>
+                        </ul>
+                    {% endif %}
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

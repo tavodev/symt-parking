@@ -1,0 +1,132 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Eliminar {{ user_profile.user.get_full_name }} - Usuarios - Dashboard - SYMT Parking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Eliminar Usuario</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'dashboard:users:list' %}" class="btn btn-outline-secondary">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#chevron-left"></use>
+            </svg>
+            Volver a la lista
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <svg class="bi me-2" width="20" height="20" aria-hidden="true">
+                        <use xlink:href="#exclamation-triangle"></use>
+                    </svg>
+                    Confirmar Eliminación de Usuario
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <strong>¡Atención!</strong> Esta acción eliminará permanentemente el usuario y no se puede deshacer.
+                </div>
+                
+                <p class="mb-3">
+                    ¿Está seguro de que desea eliminar el usuario <strong>"{{ user_profile.user.get_full_name|default:user_profile.user.email }}"</strong>?
+                </p>
+
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title">Información del usuario:</h6>
+                        <dl class="row mb-0">
+                            <dt class="col-sm-3">Nombre:</dt>
+                            <dd class="col-sm-9">{{ user_profile.user.get_full_name|default:"-" }}</dd>
+                            
+                            <dt class="col-sm-3">Email:</dt>
+                            <dd class="col-sm-9">{{ user_profile.user.email }}</dd>
+                            
+                            <dt class="col-sm-3">Rol:</dt>
+                            <dd class="col-sm-9">
+                                <span class="badge 
+                                    {% if user_profile.role == 'admin' %}bg-danger
+                                    {% elif user_profile.role == 'admin_plaza' %}bg-warning text-dark
+                                    {% elif user_profile.role == 'gerente_local' %}bg-info
+                                    {% else %}bg-secondary
+                                    {% endif %}">
+                                    {{ user_profile.get_role_display }}
+                                </span>
+                            </dd>
+
+                            {% if user_profile.location %}
+                            <dt class="col-sm-3">Plaza:</dt>
+                            <dd class="col-sm-9">{{ user_profile.location.name }}</dd>
+                            {% endif %}
+
+                            {% if user_profile.store %}
+                            <dt class="col-sm-3">Tienda:</dt>
+                            <dd class="col-sm-9">{{ user_profile.store.name }}</dd>
+                            {% endif %}
+                            
+                            <dt class="col-sm-3">Estado:</dt>
+                            <dd class="col-sm-9">
+                                {% if user_profile.user.is_active %}
+                                    <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactivo</span>
+                                {% endif %}
+                            </dd>
+                            
+                            <dt class="col-sm-3">Registrado:</dt>
+                            <dd class="col-sm-9">{{ user_profile.created_at|date:"d/m/Y H:i" }}</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-3" role="alert">
+                    <strong>Nota:</strong> Al eliminar este usuario se eliminarán también:
+                    <ul class="mb-0 mt-2">
+                        <li>Su perfil y configuraciones</li>
+                        <li>Su acceso al sistema</li>
+                        <li>Su historial de actividades</li>
+                    </ul>
+                </div>
+
+                {% if user_profile.role == 'gerente_local' or user_profile.role == 'admin_plaza' %}
+                <div class="alert alert-warning mt-3" role="alert">
+                    <strong>Importante:</strong> Este usuario puede tener otros usuarios bajo su administración. 
+                    Asegúrese de reasignar o eliminar esos usuarios antes de continuar.
+                </div>
+                {% endif %}
+
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'dashboard:users:detail' user_profile.pk %}" class="btn btn-secondary">
+                            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                                <use xlink:href="#arrow-left"></use>
+                            </svg>
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                                <use xlink:href="#trash"></use>
+                            </svg>
+                            Sí, eliminar usuario
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

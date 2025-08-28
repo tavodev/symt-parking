@@ -1,0 +1,298 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ form_title }} - Usuarios - Dashboard - SYMT Parking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{ form_title }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'dashboard:users:list' %}" class="btn btn-outline-secondary">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#chevron-left"></use>
+            </svg>
+            Volver a la lista
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Información del Usuario</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- User Information -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                Nombre <span class="text-danger">*</span>
+                            </label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.first_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                Apellidos <span class="text-danger">*</span>
+                            </label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.last_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">
+                                Email <span class="text-danger">*</span>
+                            </label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.password.id_for_label }}" class="form-label">
+                                Contraseña {% if not form_action == 'Actualizar' %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if form.password.help_text %}
+                                <div class="form-text">{{ form.password.help_text }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Role and Assignment Information -->
+                    <h6 class="mb-3">Rol y Asignación</h6>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.role.id_for_label }}" class="form-label">
+                                Rol <span class="text-danger">*</span>
+                            </label>
+                            {{ form.role }}
+                            {% if form.role.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.role.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Determina los permisos y accesos del usuario</div>
+                        </div>
+                    </div>
+
+                    <div class="row" id="location-field" style="display: none;">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.location.id_for_label }}" class="form-label">
+                                Plaza Asignada
+                            </label>
+                            {{ form.location }}
+                            {% if form.location.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.location.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Plaza que el usuario puede administrar</div>
+                        </div>
+                    </div>
+
+                    <div class="row" id="store-field" style="display: none;">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.store.id_for_label }}" class="form-label">
+                                Tienda Asignada
+                            </label>
+                            {{ form.store }}
+                            {% if form.store.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.store.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Tienda que el usuario puede gestionar</div>
+                        </div>
+                    </div>
+
+                    <div class="row" id="managed-locations-field" style="display: none;">
+                        <div class="col-md-12 mb-3">
+                            <label for="{{ form.managed_locations.id_for_label }}" class="form-label">
+                                Ubicaciones Gestionadas
+                            </label>
+                            {{ form.managed_locations }}
+                            {% if form.managed_locations.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.managed_locations.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Mantén presionado Ctrl/Cmd para seleccionar múltiples ubicaciones</div>
+                        </div>
+                    </div>
+
+                    <!-- Form errors -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'dashboard:users:list' %}" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                                <use xlink:href="#check2"></use>
+                            </svg>
+                            {{ form_action }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Roles y Permisos</h6>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">
+                    <div class="mb-3">
+                        <strong class="text-danger">Administrator</strong><br>
+                        Acceso completo al sistema. Puede gestionar múltiples plazas y crear cualquier tipo de usuario.
+                    </div>
+                    <div class="mb-3">
+                        <strong class="text-warning">Admin Plaza</strong><br>
+                        Administra una plaza específica. Puede crear gerentes y usuarios locales dentro de su plaza.
+                    </div>
+                    <div class="mb-3">
+                        <strong class="text-info">Gerente Local</strong><br>
+                        Gestiona una tienda específica. Puede crear usuarios locales para su tienda.
+                    </div>
+                    <div class="mb-3">
+                        <strong class="text-secondary">Usuario Local</strong><br>
+                        Usuario operativo que procesa tickets de estacionamiento.
+                    </div>
+                </small>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Ayuda</h6>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">
+                    <strong>Consejos:</strong>
+                    <ul class="mt-2 ps-3">
+                        <li>El email debe ser único en el sistema</li>
+                        <li>La contraseña debe ser segura</li>
+                        <li>El rol determina qué usuarios puede crear</li>
+                        <li>Las asignaciones varían según el rol seleccionado</li>
+                    </ul>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Bootstrap classes to form fields
+    const formFields = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"], textarea, select');
+    formFields.forEach(field => {
+        field.classList.add('form-control');
+        
+        if (field.hasAttribute('required')) {
+            field.setAttribute('required', '');
+        }
+    });
+
+    // Add validation feedback classes
+    const invalidFields = document.querySelectorAll('.invalid-feedback');
+    invalidFields.forEach(feedback => {
+        const field = feedback.previousElementSibling;
+        if (field && field.tagName !== 'DIV') {
+            field.classList.add('is-invalid');
+        }
+    });
+
+    // Role-based field visibility
+    const roleField = document.getElementById('id_role');
+    const locationField = document.getElementById('location-field');
+    const storeField = document.getElementById('store-field');
+    const managedLocationsField = document.getElementById('managed-locations-field');
+
+    function toggleFields() {
+        const selectedRole = roleField.value;
+        
+        // Hide all fields first
+        locationField.style.display = 'none';
+        storeField.style.display = 'none';
+        managedLocationsField.style.display = 'none';
+
+        // Show fields based on role
+        if (selectedRole === 'admin') {
+            managedLocationsField.style.display = 'block';
+        } else if (selectedRole === 'admin_plaza') {
+            locationField.style.display = 'block';
+        } else if (selectedRole === 'gerente_local' || selectedRole === 'usuario_local') {
+            storeField.style.display = 'block';
+        }
+    }
+
+    if (roleField) {
+        roleField.addEventListener('change', toggleFields);
+        // Initialize on page load
+        toggleFields();
+    }
+});
+</script>
+{% endblock %}
