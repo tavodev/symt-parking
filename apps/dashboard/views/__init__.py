@@ -1,2 +1,2 @@
 from .default import *
-from . import locations
+from . import locations, tickets

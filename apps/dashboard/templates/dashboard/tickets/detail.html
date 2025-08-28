@@ -1,0 +1,200 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ ticket.code }} - Tickets - Dashboard - SYMT Parking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Ticket {{ ticket.code }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{% url 'dashboard:tickets:update' ticket.pk %}" class="btn btn-primary">
+                <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                    <use xlink:href="#gear-wide-connected"></use>
+                </svg>
+                Editar
+            </a>
+            <a href="{% url 'dashboard:tickets:delete' ticket.pk %}" class="btn btn-outline-danger">
+                <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                    <use xlink:href="#door-closed"></use>
+                </svg>
+                Eliminar
+            </a>
+        </div>
+        <a href="{% url 'dashboard:tickets:list' %}" class="btn btn-outline-secondary">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#chevron-left"></use>
+            </svg>
+            Volver a la lista
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Información General</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-5">Código:</dt>
+                    <dd class="col-sm-7"><strong>{{ ticket.code }}</strong></dd>
+                    
+                    <dt class="col-sm-5">Estado:</dt>
+                    <dd class="col-sm-7">
+                        {% if ticket.status == 'issued' %}
+                            <span class="badge bg-secondary">Emitido</span>
+                        {% elif ticket.status == 'validated' %}
+                            <span class="badge bg-info">Validado</span>
+                        {% elif ticket.status == 'paid' %}
+                            <span class="badge bg-success">Pagado</span>
+                        {% elif ticket.status == 'exited' %}
+                            <span class="badge bg-primary">Salida</span>
+                        {% elif ticket.status == 'expired' %}
+                            <span class="badge bg-warning">Vencido</span>
+                        {% elif ticket.status == 'lost' %}
+                            <span class="badge bg-danger">Perdido</span>
+                        {% elif ticket.status == 'canceled' %}
+                            <span class="badge bg-dark">Cancelado</span>
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-5">Estacionamiento:</dt>
+                    <dd class="col-sm-7">{{ ticket.parking.name }}</dd>
+                    
+                    <dt class="col-sm-5">Placa:</dt>
+                    <dd class="col-sm-7">{{ ticket.plate_number|default:"No especificada" }}</dd>
+                    
+                    <dt class="col-sm-5">Puede salir:</dt>
+                    <dd class="col-sm-7">
+                        {% if can_exit_display %}
+                            <span class="badge bg-success">Sí</span>
+                        {% else %}
+                            <span class="badge bg-danger">No</span>
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-5">Expirado:</dt>
+                    <dd class="col-sm-7">
+                        {% if is_expired_display %}
+                            <span class="badge bg-warning">Sí</span>
+                        {% else %}
+                            <span class="badge bg-success">No</span>
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        {% if ticket.notes %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Observaciones</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">{{ ticket.notes }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Tiempos y Montos</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-5">Entrada:</dt>
+                    <dd class="col-sm-7">{{ ticket.entry_time|date:"d/m/Y H:i:s" }}</dd>
+                    
+                    <dt class="col-sm-5">Salida:</dt>
+                    <dd class="col-sm-7">{{ ticket.exit_time|date:"d/m/Y H:i:s"|default:"No registrada" }}</dd>
+                    
+                    <dt class="col-sm-5">Duración:</dt>
+                    <dd class="col-sm-7">{{ duration_display }}</dd>
+                    
+                    <dt class="col-sm-5">Pago:</dt>
+                    <dd class="col-sm-7">{{ ticket.paid_at|date:"d/m/Y H:i:s"|default:"No pagado" }}</dd>
+                    
+                    <dt class="col-sm-5">Monto:</dt>
+                    <dd class="col-sm-7">${{ ticket.amount|floatformat:2 }}</dd>
+                    
+                    <dt class="col-sm-5">Descuento:</dt>
+                    <dd class="col-sm-7">${{ ticket.discount_applied|floatformat:2 }}</dd>
+                    
+                    <dt class="col-sm-5">Total a Pagar:</dt>
+                    <dd class="col-sm-7"><strong>${{ total_amount_display|floatformat:2 }}</strong></dd>
+                </dl>
+            </div>
+        </div>
+
+        {% if ticket.validated_by_store %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Validación por Tienda</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-5">Tienda:</dt>
+                    <dd class="col-sm-7">
+                        <a href="{% url 'dashboard:stores:detail' ticket.validated_by_store.pk %}">
+                            {{ ticket.validated_by_store.name }}
+                        </a>
+                    </dd>
+                    
+                    <dt class="col-sm-5">Estado:</dt>
+                    <dd class="col-sm-7">
+                        {% if ticket.validated_by_store.is_active %}
+                            <span class="badge bg-success">Activa</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactiva</span>
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Información de Auditoría</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Creado:</strong><br>
+                        <small class="text-muted">{{ ticket.created_at|date:"d/m/Y H:i:s" }}</small>
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Actualizado:</strong><br>
+                        <small class="text-muted">{{ ticket.updated_at|date:"d/m/Y H:i:s" }}</small>
+                    </div>
+                    <div class="col-md-3">
+                        <strong>ID:</strong><br>
+                        <small class="text-muted font-monospace">{{ ticket.id }}</small>
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Ubicación:</strong><br>
+                        <small class="text-muted">{{ ticket.parking.location.name|default:"No especificada" }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

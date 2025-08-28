@@ -1,0 +1,304 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ form_title }} - Tickets - Dashboard - SYMT Parking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{ form_title }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'dashboard:tickets:list' %}" class="btn btn-outline-secondary">
+            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                <use xlink:href="#chevron-left"></use>
+            </svg>
+            Volver a la lista
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Información del Ticket</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.parking.id_for_label }}" class="form-label">
+                                Estacionamiento <span class="text-danger">*</span>
+                            </label>
+                            {{ form.parking }}
+                            {% if form.parking.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.parking.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.code.id_for_label }}" class="form-label">
+                                Código <span class="text-danger">*</span>
+                            </label>
+                            {{ form.code }}
+                            {% if form.code.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.code.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Código único del ticket (QR, barcode, etc.)</div>
+                        </div>
+                    </div>
+
+                    {% if form.validated_by_store %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.validated_by_store.id_for_label }}" class="form-label">
+                                Validado por Tienda
+                            </label>
+                            {{ form.validated_by_store }}
+                            {% if form.validated_by_store.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.validated_by_store.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">
+                                Estado <span class="text-danger">*</span>
+                            </label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.status.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">
+                                Estado <span class="text-danger">*</span>
+                            </label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.status.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.plate_number.id_for_label }}" class="form-label">
+                                Placa del Vehículo
+                            </label>
+                            {{ form.plate_number }}
+                            {% if form.plate_number.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.plate_number.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if form.amount %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.amount.id_for_label }}" class="form-label">
+                                Monto ($)
+                            </label>
+                            {{ form.amount }}
+                            {% if form.amount.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.amount.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.discount_applied.id_for_label }}" class="form-label">
+                                Descuento Aplicado ($)
+                            </label>
+                            {{ form.discount_applied }}
+                            {% if form.discount_applied.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.discount_applied.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if form.exit_time %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.exit_time.id_for_label }}" class="form-label">
+                                Hora de Salida
+                            </label>
+                            {{ form.exit_time }}
+                            {% if form.exit_time.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.exit_time.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {% if not form.plate_number %}
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.plate_number.id_for_label }}" class="form-label">
+                                Placa del Vehículo
+                            </label>
+                            {{ form.plate_number }}
+                            {% if form.plate_number.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.plate_number.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">
+                                Observaciones
+                            </label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.notes.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'dashboard:tickets:list' %}" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <svg class="bi me-2" width="16" height="16" aria-hidden="true">
+                                <use xlink:href="#check2"></use>
+                            </svg>
+                            {{ form_action }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Estados del Ticket</h6>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">
+                    <ul class="list-unstyled">
+                        <li><span class="badge bg-secondary me-1">Emitido</span> Ticket recién creado</li>
+                        <li><span class="badge bg-info me-1">Validado</span> Validado por tienda</li>
+                        <li><span class="badge bg-success me-1">Pagado</span> Tarifa pagada</li>
+                        <li><span class="badge bg-primary me-1">Salida</span> Vehículo ha salido</li>
+                        <li><span class="badge bg-warning me-1">Vencido</span> Tiempo excedido</li>
+                        <li><span class="badge bg-danger me-1">Perdido</span> Ticket extraviado</li>
+                        <li><span class="badge bg-dark me-1">Cancelado</span> Ticket anulado</li>
+                    </ul>
+                </small>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Ayuda</h6>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">
+                    <strong>Consejos:</strong>
+                    <ul class="mt-2 ps-3">
+                        <li>El código debe ser único</li>
+                        <li>Los descuentos no pueden ser negativos</li>
+                        <li>La hora de salida debe ser posterior a la entrada</li>
+                        <li>Solo tickets pagados o validados pueden salir</li>
+                    </ul>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add Bootstrap classes to form fields
+    const formFields = document.querySelectorAll('input[type="text"], input[type="number"], input[type="datetime-local"], textarea, select');
+    formFields.forEach(field => {
+        field.classList.add('form-control');
+        
+        if (field.hasAttribute('required')) {
+            field.setAttribute('required', '');
+        }
+    });
+
+    // Add validation feedback classes
+    const invalidFields = document.querySelectorAll('.invalid-feedback');
+    invalidFields.forEach(feedback => {
+        const field = feedback.previousElementSibling;
+        if (field && field.tagName !== 'DIV') {
+            field.classList.add('is-invalid');
+        }
+    });
+
+    // Format datetime fields
+    const datetimeFields = document.querySelectorAll('input[type="datetime-local"]');
+    datetimeFields.forEach(field => {
+        if (field.value) {
+            // Convert from Django datetime format to HTML5 datetime-local format
+            const date = new Date(field.value);
+            if (!isNaN(date.getTime())) {
+                field.value = date.toISOString().slice(0, 16);
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
